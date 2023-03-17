@@ -24,12 +24,12 @@ def preprocess_images(folder_paths, img_size):
 		- img_size (tuple of int): Tuple of target image size, e.g., (224, 224).
 		- augment (bool): Flag indicating whether to perform data augmentation.
 	Returns:
-		- preprocessed_images (numpy array): Array of preprocessed images.
-		- labels (numpy array): Array of labels for each image.
+		- original_images (numpy array): Array of preprocessed images.
+		- original_labels (numpy array): Array of labels for each image.
 	'''
 	# Initialize empty lists for images and labels
-	images = []
-	labels = []
+	original_images = []
+	original_labels = []
 
 	# Loop over each folder path and each image in the folder
 	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images')
@@ -52,34 +52,33 @@ def preprocess_images(folder_paths, img_size):
 			img = np.array(img, dtype=np.float32)
 
 			# Append preprocessed image and label to lists
-			images.append(img)
-			labels.append(folder_path.split('/')[-1])
+			original_images.append(img)
+			original_labels.append(folder_path.split('/')[-1])
 
 			pbar.update(1)
 
 	# Convert lists to numpy arrays
-	preprocessed_images = np.array(images)
-	labels = np.array(labels)
+	original_images = np.array(original_images)
+	original_labels = np.array(original_labels)
 
 	pbar.close()
 
-	return preprocessed_images, labels
+	return original_images, original_labels
 
 ##########################################################################
 
-def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
+def augment_images(img_size, some_images, some_labels, n_augmentations):
 	"""
 	Perform data augmentation on a set of preprocessed images and their corresponding labels.
 
 	Args:
 		img_size: size of the images 
-		preprocessed_images: numpy array of shape (num_images, height, width, channels)
+		some_images: numpy array of shape (num_images, height, width, channels)
 			Array of preprocessed images to augment.
-		labels: numpy array of shape (num_images,)
+		some_labels: numpy array of shape (num_images,)
 			Array of labels corresponding to the preprocessed images.
 		n_augmentations: int, optional
 			Number of augmented images to generate per original image.
-			Default is 5.
 
 	Returns:
 		augmented_images: numpy array of shape (num_images * n_augmentations, height, width, channels)
@@ -97,19 +96,19 @@ def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
 		fill_mode='nearest')
 
 	# Create an empty array to store the augmented images and labels
-	augmented_images = np.zeros((len(preprocessed_images) * n_augmentations, img_size[0], img_size[1], 3))
-	augmented_labels = np.zeros(len(preprocessed_images) * n_augmentations)
+	augmented_images = np.zeros((len(some_images) * n_augmentations, img_size[0], img_size[1], 3))
+	augmented_labels = np.zeros(len(some_images) * n_augmentations)
 
 	# Perform data augmentation on each original image n times
-	pbar = tqdm(total=len(preprocessed_images) * n_augmentations, desc="Augmenting images")
-	for i in range(len(preprocessed_images)):
+	pbar = tqdm(total=len(some_images) * n_augmentations, desc="Augmenting images")
+	for i in range(len(some_images)):
 		for j in range(n_augmentations):
 			# Generate a batch of one augmented image using the datagen
-			img_batch = datagen.flow(preprocessed_images[i:i+1], batch_size=1)[0]
+			img_batch = datagen.flow(some_images[i:i+1], batch_size=1)[0]
 			# Add the augmented image and its label to the arrays
 			idx = i * n_augmentations + j
 			augmented_images[idx] = img_batch
-			augmented_labels[idx] = labels[i]
+			augmented_labels[idx] = some_labels[i]
 			pbar.update(1)
 
 	pbar.close()
@@ -117,39 +116,30 @@ def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
 
 ##########################################################################
 
-def new_model(X_train, regularization):
+def new_model(X_train):
+
 	model = tf.keras.models.Sequential()
-	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', 
-									input_shape=X_train.shape[1:], 
-									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
+	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu', 
-									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
+	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu', 
-									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
+	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu'))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
 	# FC layer
 	model.add(tf.keras.layers.Flatten())
-	if regularization:
-		model.add(tf.keras.layers.Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)))
-	else:
-		model.add(tf.keras.layers.Dense(32, activation='relu'))
-	model.add(tf.keras.layers.Dropout(rate=0.3))
-	if regularization:
-		model.add(tf.keras.layers.Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)))
-	else:
-		model.add(tf.keras.layers.Dense(16, activation='relu'))
-	model.add(tf.keras.layers.Dropout(rate=0.3))
+	model.add(tf.keras.layers.Dense(32, activation='relu'))
+	model.add(tf.keras.layers.Dropout(rate = 0.3))
+	model.add(tf.keras.layers.Dense(16, activation='relu'))
+	model.add(tf.keras.layers.Dropout(rate = 0.3))
 	model.add(tf.keras.layers.Dense(3, activation='softmax'))
 
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics=['accuracy'])
 
 	return model
 
