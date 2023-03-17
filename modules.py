@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from tqdm.notebook import tqdm
 
+import tensorflow as tf
+
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import regularizers
 from tensorflow.keras.models import Sequential
@@ -12,70 +14,15 @@ from tensorflow.keras.optimizers import Adam
 
 ##########################################################################
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-def generate_augmented_images(image_paths, img_size, n_augmentations):
-	'''
-	Generates augmented images for a list of image paths.
-
-	Parameters:
-		- image_paths (list of str): List of paths to input images.
-		- img_size (tuple of int): Tuple of target image size, e.g., (224, 224).
-		- n_augmentations (int): Number of augmented images to generate for each input image.
-
-	Returns:
-		- augmented_images (numpy array): Array of augmented images.
-		- labels (numpy array): Array of labels for each image.
-	'''
-
-	# Initialize ImageDataGenerator with desired augmentation parameters
-	datagen = ImageDataGenerator(
-		rotation_range=30,
-		zoom_range=[0.9, 1.1],
-		horizontal_flip=True,
-		width_shift_range=0.1,
-		height_shift_range=0.1,
-		fill_mode='nearest'
-	)
-
-	# Load and preprocess each image, and generate augmented images
-	images = []
-	labels = []
-	for image_path in image_paths:
-		label = os.path.basename(os.path.dirname(image_path))
-		img = cv2.imread(image_path)
-		img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-		img = cv2.resize(img, img_size, interpolation=cv2.INTER_LINEAR)
-		img = np.array(img, dtype=np.float32)
-		img /= 255.0
-		images.append(img)
-		labels.append(label)
-
-		# Generate n_augmentations random augmented images
-		augmented_images = datagen.flow(np.array([img]), batch_size=n_augmentations, shuffle=False)
-		for i in range(n_augmentations):
-			images.append(augmented_images.next()[0])
-			labels.append(label)
-
-	# Convert lists to numpy arrays
-	augmented_images = np.array(images)
-	labels = np.array(labels)
-
-	return augmented_images, labels
-
-##########################################################################
-
 # Define a function to preprocess the images
 
-def preprocess_images(folder_paths, img_size, n_augmentations = 5):
+def preprocess_images(folder_paths, img_size):
 	'''
-	Preprocesses a list of images with data augmentation.
-
+	Preprocesses a list of images.
 	Parameters:
 		- folder_paths (list of str): List of folder paths containing the images.
 		- img_size (tuple of int): Tuple of target image size, e.g., (224, 224).
-		- n_augmentations (int): Number of augmented images to generate for each input image.
-
+		- augment (bool): Flag indicating whether to perform data augmentation.
 	Returns:
 		- preprocessed_images (numpy array): Array of preprocessed images.
 		- labels (numpy array): Array of labels for each image.
@@ -85,21 +32,24 @@ def preprocess_images(folder_paths, img_size, n_augmentations = 5):
 	labels = []
 
 	# Loop over each folder path and each image in the folder
-	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images')
+	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images:')
+
 	for folder_path in folder_paths:
 		for filename in os.listdir(folder_path):
-
 			# Load image
 			img = cv2.imread(os.path.join(folder_path, filename))
-
-			# Convert to RGB
-			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 			# Resize image
 			img = cv2.resize(img, img_size, interpolation=cv2.INTER_LINEAR)
 
+			# Convert to RGB
+			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
 			# Normalize pixel values
 			img = img / 255.0
+
+			# Convert image to numpy array
+			img = np.array(img, dtype=np.float32)
 
 			# Append preprocessed image and label to lists
 			images.append(img)
@@ -107,72 +57,67 @@ def preprocess_images(folder_paths, img_size, n_augmentations = 5):
 
 			pbar.update(1)
 
-	pbar.close()
-
-	# Generate augmented images for each input image
-	augmented_images, augmented_labels = generate_augmented_images(folder_paths, img_size, n_augmentations)
-
-	# Append augmented images and labels to lists
-	images.extend(augmented_images)
-	labels.extend(augmented_labels)
+			pbar.set_description(f'Folder: {folder_path.split("/")[-1]}, file: {filename}')
 
 	# Convert lists to numpy arrays
 	preprocessed_images = np.array(images)
 	labels = np.array(labels)
 
+	pbar.close()
+
 	return preprocessed_images, labels
 
 ##########################################################################
 
-# Define the model architecture and compile it
+def augment_images(preprocessed_images, labels, n_augmentations=5):
+	"""
+	Perform data augmentation on a set of preprocessed images and their corresponding labels.
 
-# def create_model(input_shape, num_classes, learning_rate):
-	
-# 	# Initialize a sequential model
-# 	model = Sequential()
-	
-# 	# Add a 2D convolutional layer with 16 filters, a 3x3 kernel size, and ReLU activation function
-# 	model.add(Conv2D(16, (3, 3), activation='relu', input_shape=input_shape))
-	
-# 	# Add a max pooling layer with a 2x2 pool size
-# 	model.add(MaxPooling2D((2, 2)))
+	Args:
+		preprocessed_images: numpy array of shape (num_images, height, width, channels)
+			Array of preprocessed images to augment.
+		labels: numpy array of shape (num_images,)
+			Array of labels corresponding to the preprocessed images.
+		n_augmentations: int, optional
+			Number of augmented images to generate per original image.
+			Default is 5.
 
-# 	# Add batch normalization
-# 	model.add(BatchNormalization())
-	
-# 	# Add another 2D convolutional layer with 32 filters, a 3x3 kernel size, and ReLU activation function
-# 	model.add(Conv2D(32, (3, 3), activation='relu'))
-	
-# 	# Add another max pooling layer with a 2x2 pool size
-# 	model.add(MaxPooling2D((2, 2)))
+	Returns:
+		augmented_images: numpy array of shape (num_images * n_augmentations, height, width, channels)
+			Array of augmented images.
+		augmented_labels: numpy array of shape (num_images * n_augmentations,)
+			Array of labels corresponding to the augmented images.
+	"""
+	# Create an ImageDataGenerator object with the desired augmentations
+	datagen = ImageDataGenerator(
+		rotation_range=20,
+		width_shift_range=0.2,
+		height_shift_range=0.2,
+		shear_range=0.2,
+		zoom_range=0.2,
+		horizontal_flip=True,
+		fill_mode='nearest')
 
-# 	# Add a third 2D convolutional layer with 64 filters, a 3x3 kernel size, and ReLU activation function
-# 	model.add(Conv2D(64, (3, 3), activation='relu'))
-	
-# 	# Add another max pooling layer with a 2x2 pool size
-# 	model.add(MaxPooling2D((2, 2)))
-	
-# 	# Flatten the output of the convolutional layers
-# 	model.add(Flatten())
-	
-# 	# Add a dense layer with 64 units and ReLU activation function
-# 	model.add(Dense(64, activation='relu'))
+	# Create an empty array to store the augmented images and labels
+	augmented_images = np.zeros((len(preprocessed_images) * n_augmentations, 64, 64, 3))
+	augmented_labels = np.zeros(len(preprocessed_images) * n_augmentations)
 
-# 	model.add(Dropout(0.25))
-	
-# 	# Add a dense layer with num_classes units and softmax activation function
-# 	model.add(Dense(num_classes, activation='softmax'))
-	
-# 	optimizer = Adam(learning_rate)
-	
-# 	# Compile the model with categorical cross-entropy loss and Adam optimizer
-# 	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-	
-# 	return model
+	# Perform data augmentation on each original image n times
+	pbar = tqdm(total=len(preprocessed_images) * n_augmentations, desc="Augmenting images")
+	for i in range(len(preprocessed_images)):
+		for j in range(n_augmentations):
+			# Generate a batch of one augmented image using the datagen
+			img_batch = datagen.flow(preprocessed_images[i:i+1], batch_size=1)[0]
+			# Add the augmented image and its label to the arrays
+			idx = i * n_augmentations + j
+			augmented_images[idx] = img_batch
+			augmented_labels[idx] = labels[i]
+			pbar.update(1)
+
+	pbar.close()
+	return augmented_images, augmented_labels
 
 ##########################################################################
-
-import tensorflow as tf
 
 def new_model(X_train):
 
