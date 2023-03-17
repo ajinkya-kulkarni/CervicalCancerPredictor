@@ -92,7 +92,6 @@ def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
 		rotation_range=20,
 		width_shift_range=0.2,
 		height_shift_range=0.2,
-		shear_range=0.2,
 		zoom_range=0.2,
 		horizontal_flip=True,
 		fill_mode='nearest')
@@ -118,30 +117,39 @@ def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
 
 ##########################################################################
 
-def new_model(X_train):
-
+def new_model(X_train, regularization):
 	model = tf.keras.models.Sequential()
-	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
+	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', 
+									input_shape=X_train.shape[1:], 
+									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
+	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu', 
+									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu'))
+	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu', 
+									kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01) if regularization else None))
 	model.add(tf.keras.layers.BatchNormalization())
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
 	# FC layer
 	model.add(tf.keras.layers.Flatten())
-	model.add(tf.keras.layers.Dense(32, activation='relu'))
-	model.add(tf.keras.layers.Dropout(rate = 0.3))
-	model.add(tf.keras.layers.Dense(16, activation='relu'))
-	model.add(tf.keras.layers.Dropout(rate = 0.3))
+	if regularization:
+		model.add(tf.keras.layers.Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)))
+	else:
+		model.add(tf.keras.layers.Dense(32, activation='relu'))
+	model.add(tf.keras.layers.Dropout(rate=0.3))
+	if regularization:
+		model.add(tf.keras.layers.Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)))
+	else:
+		model.add(tf.keras.layers.Dense(16, activation='relu'))
+	model.add(tf.keras.layers.Dropout(rate=0.3))
 	model.add(tf.keras.layers.Dense(3, activation='softmax'))
 
-	model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	return model
 
