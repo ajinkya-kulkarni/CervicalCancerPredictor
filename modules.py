@@ -32,7 +32,7 @@ def preprocess_images(folder_paths, img_size):
 	labels = []
 
 	# Loop over each folder path and each image in the folder
-	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images:')
+	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images')
 
 	for folder_path in folder_paths:
 		for filename in os.listdir(folder_path):
@@ -57,8 +57,6 @@ def preprocess_images(folder_paths, img_size):
 
 			pbar.update(1)
 
-			pbar.set_description(f'Folder: {folder_path.split("/")[-1]}, file: {filename}')
-
 	# Convert lists to numpy arrays
 	preprocessed_images = np.array(images)
 	labels = np.array(labels)
@@ -69,11 +67,12 @@ def preprocess_images(folder_paths, img_size):
 
 ##########################################################################
 
-def augment_images(preprocessed_images, labels, n_augmentations=5):
+def augment_images(img_size, preprocessed_images, labels, n_augmentations=5):
 	"""
 	Perform data augmentation on a set of preprocessed images and their corresponding labels.
 
 	Args:
+		img_size: size of the images 
 		preprocessed_images: numpy array of shape (num_images, height, width, channels)
 			Array of preprocessed images to augment.
 		labels: numpy array of shape (num_images,)
@@ -99,7 +98,7 @@ def augment_images(preprocessed_images, labels, n_augmentations=5):
 		fill_mode='nearest')
 
 	# Create an empty array to store the augmented images and labels
-	augmented_images = np.zeros((len(preprocessed_images) * n_augmentations, 64, 64, 3))
+	augmented_images = np.zeros((len(preprocessed_images) * n_augmentations, img_size[0], img_size[1], 3))
 	augmented_labels = np.zeros(len(preprocessed_images) * n_augmentations)
 
 	# Perform data augmentation on each original image n times
