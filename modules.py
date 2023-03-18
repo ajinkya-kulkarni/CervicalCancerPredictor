@@ -11,7 +11,7 @@ import tensorflow as tf
 
 FIGSIZE = (10, 10)
 
-##########################################################################
+######################################################################
 
 # Define a function to preprocess the images
 
@@ -78,7 +78,7 @@ def preprocess_images(folder_paths, img_size):
 
 	return original_images, original_labels
 
-##########################################################################
+######################################################################
 
 def augment_images(X_train, y_train, n_augmentations):
 	'''
@@ -134,7 +134,7 @@ def augment_images(X_train, y_train, n_augmentations):
 
 	return X_train_final, y_train_final
 
-##########################################################################
+######################################################################
 
 def show_random_augmentation(X_train, X_train_final, n_augmentations):
 
@@ -181,7 +181,7 @@ def show_random_augmentation(X_train, X_train_final, n_augmentations):
 	plt.savefig('RandomAugmentations.pdf', bbox_inches = 'tight')
 	plt.close()
 
-##########################################################################
+######################################################################
 
 def plot_confusion_matrix(num_classes, ConfusionMatrix):
 	# Define class dictionary
@@ -216,7 +216,7 @@ def plot_confusion_matrix(num_classes, ConfusionMatrix):
 	plt.savefig('ConfusionMatrix.pdf', bbox_inches = 'tight')
 	plt.close()
 
-##########################################################################
+######################################################################
 
 def CNN_model(X_train, learning_rate, regularization):
 	'''
@@ -304,4 +304,4 @@ def CNN_model(X_train, learning_rate, regularization):
 
 	return model
 
-##########################################################################
+######################################################################

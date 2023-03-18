@@ -90,7 +90,6 @@ val_acc_list = []
 train_loss_list = []
 val_loss_list = []
 
-# Initialize a progress bar with a total number of epochs
 with tqdm(total=epochs) as pbar:
 	for epoch in range(epochs):
 		
@@ -109,8 +108,8 @@ with tqdm(total=epochs) as pbar:
 		train_loss_list.append(train_loss)
 		val_loss_list.append(val_loss)
 
-		# Update the progress bar with the current training and validation accuracy
-		pbar.set_description(f'Train Acc: {train_acc:.2f}, Val Acc: {val_acc:.2f}')
+		# Update the progress bar with the current training and validation accuracy and epoch number
+		pbar.set_description(f'Epoch: {epoch+1}/{epochs}, Train Acc: {train_acc * 100:.0f}%, Val Acc: {val_acc * 100:.0f}%')
 
 		# Increment the progress bar
 		pbar.update(1)
