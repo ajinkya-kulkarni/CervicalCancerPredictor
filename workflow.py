@@ -81,7 +81,7 @@ show_random_augmentation(X_train, X_train_final, n_augmentations)
 
 # Define the model
 
-model = CNN_model(X_train_final, learning_rate, regularization = True)
+model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
 ######################################################################
 
@@ -110,7 +110,7 @@ with tqdm(total=epochs) as pbar:
 		val_loss_list.append(val_loss)
 
 		# Update the progress bar with the current training and validation accuracy
-		pbar.set_description(f'Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}')
+		pbar.set_description(f'Train Acc: {train_acc:.2f}, Val Acc: {val_acc:.2f}')
 
 		# Increment the progress bar
 		pbar.update(1)
@@ -190,5 +190,11 @@ print(f'Test F1-score: {f1:.3f}')
 print()
 print(f'Test confusion matrix:\n{ConfusionMatrix}')
 print()
+
+######################################################################
+
+# Save the model
+
+model.save('Trained_CNN_Model.h5')
 
 ######################################################################
