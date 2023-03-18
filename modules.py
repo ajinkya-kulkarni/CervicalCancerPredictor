@@ -5,7 +5,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 import tensorflow as tf
 
@@ -113,7 +113,7 @@ def show_random_augmentation(X_train, X_train_final, n_augmentations):
 	rows = int(np.ceil((n + 1) / cols))
 
 	# Create a figure and axes for the subplots
-	fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(cols * 2, rows * 2))
+	fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(10, 10))
 
 	# Flatten the axes array for easier indexing
 	axes = axes.flatten()
@@ -131,15 +131,16 @@ def show_random_augmentation(X_train, X_train_final, n_augmentations):
 
 		# Plot the augmented image in the next subplot
 		axes[i + 1].imshow(augmented_image)
-		axes[i + 1].set_title(f"Augmentation {i + 1}")
+		axes[i + 1].set_title(f"#{i + 1}")
 		axes[i + 1].axis('off')
 
 	# Remove any unused subplots
 	for j in range(n + 1, rows * cols):
 		fig.delaxes(axes[j])
 
-	# Display the plot
-	plt.show()
+	# Save and close the plot
+	plt.savefig('RandomAugmentations.pdf', bbox_inches = 'tight')
+	plt.close()
 
 ##########################################################################
 
