@@ -2,15 +2,12 @@
 import os
 import cv2
 import numpy as np
+import random
+import matplotlib.pyplot as plt
+
 from tqdm.notebook import tqdm
 
 import tensorflow as tf
-
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras import regularizers
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
-from tensorflow.keras.optimizers import Adam
 
 ##########################################################################
 
@@ -67,7 +64,87 @@ def preprocess_images(folder_paths, img_size):
 
 ##########################################################################
 
-def new_model(X_train, regularization):
+def augment_images(X_train, y_train, n_augmentations):
+	# Define the number of augmentations per image
+	n = n_augmentations
+
+	# Create an ImageDataGenerator instance with the desired augmentations
+	datagen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=20, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, horizontal_flip=True, fill_mode='nearest')
+
+	# Initialize empty lists for the augmented images and labels
+	X_train_augmented = []
+	y_train_augmented = []
+
+	# Iterate through the original images and labels to generate augmentations
+	for i, (x, y) in tqdm(enumerate(zip(X_train, y_train)), total=len(X_train), desc='Augmenting images'):
+		# Reshape the image to add a batch dimension
+		x = x.reshape((1,) + x.shape)
+		
+		# Generate n augmentations for the image
+		for _ in range(n):
+			# Get the next augmented image
+			augmented_image = datagen.flow(x, batch_size=1)[0]
+
+			# Append the augmented image and label to the lists
+			X_train_augmented.append(augmented_image[0])
+			y_train_augmented.append(y)
+
+	# Concatenate the original images and labels with the augmented ones
+	X_train_final = np.concatenate((X_train, np.array(X_train_augmented)))
+	y_train_final = np.concatenate((y_train, np.array(y_train_augmented)))
+
+	return X_train_final, y_train_final
+
+##########################################################################
+
+def show_random_augmentation(X_train, X_train_final, n_augmentations):
+
+	# Define the number of augmentations per image
+	n = n_augmentations
+
+	# Choose a random index from the original images in X_train_final
+	random_index = random.randint(0, X_train.shape[0] - 1)
+
+	# Calculate the index of the first augmentation for the selected image in X_train_final
+	first_augmentation_index = X_train.shape[0] + random_index * n
+
+	# Calculate the number of rows and columns for the subplots
+	cols = int(np.ceil(np.sqrt(n + 1)))
+	rows = int(np.ceil((n + 1) / cols))
+
+	# Create a figure and axes for the subplots
+	fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(cols * 2, rows * 2))
+
+	# Flatten the axes array for easier indexing
+	axes = axes.flatten()
+
+	# Plot the original image in the first subplot
+	original_image = X_train_final[random_index]
+	axes[0].imshow(original_image)
+	axes[0].set_title("Original")
+	axes[0].axis('off')
+
+	# Plot n augmentations of the original image
+	for i in range(n):
+		# Get the augmented image from X_train_final
+		augmented_image = X_train_final[first_augmentation_index + i]
+
+		# Plot the augmented image in the next subplot
+		axes[i + 1].imshow(augmented_image)
+		axes[i + 1].set_title(f"Augmentation {i + 1}")
+		axes[i + 1].axis('off')
+
+	# Remove any unused subplots
+	for j in range(n + 1, rows * cols):
+		fig.delaxes(axes[j])
+
+	# Display the plot
+	plt.show()
+
+##########################################################################
+
+def new_model(X_train, learning_rate, regularization):
+
 	model = tf.keras.models.Sequential()
 	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
 	model.add(tf.keras.layers.BatchNormalization())
@@ -95,7 +172,9 @@ def new_model(X_train, regularization):
 	model.add(tf.keras.layers.Dropout(rate = 0.3))
 	model.add(tf.keras.layers.Dense(3, activation='softmax'))
 
-	model.compile(loss='categorical_crossentropy', optimizer = 'adam', metrics=['accuracy'])
+	optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
 	return model
 
