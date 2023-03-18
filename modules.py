@@ -44,15 +44,17 @@ def preprocess_images(folder_paths, img_size):
 	original_labels = []
 
 	# Loop over each folder path and each image in the folder
-	pbar = tqdm(total=sum(len(os.listdir(folder_path)) for folder_path in folder_paths), desc='Loading images')
+	pbar = tqdm(total=sum(len([filename for filename in os.listdir(folder_path) if not filename.startswith('.')]) for folder_path in folder_paths), desc='Loading images')
 
 	for folder_path in folder_paths:
 		for filename in os.listdir(folder_path):
+			if filename.startswith('.'):
+				continue
 
 			# Do not allow files other than certain extensions
 			if not filename.lower().endswith(('.jpg', '.jpeg', '.png', '.tiff')):
 				continue
-
+				
 			# Load image
 			img = cv2.imread(os.path.join(folder_path, filename))
 
