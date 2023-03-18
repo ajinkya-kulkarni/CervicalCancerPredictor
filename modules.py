@@ -14,29 +14,28 @@ FIGSIZE = (10, 10)
 ######################################################################
 
 # Define a function to preprocess the images
-
 def preprocess_images(folder_paths, img_size):
 	'''
 	Preprocesses a list of images.
-	
+
 	Parameters:
 		- folder_paths (list of str): List of folder paths containing the images.
 		- img_size (tuple of int): Tuple of target image size, e.g., (224, 224).
-	
+
 	Returns:
 		- original_images (numpy array): Array of preprocessed images.
 		- original_labels (numpy array): Array of labels for each image.
-	
+
 	Raises:
 		- FileNotFoundError: If a folder path in `folder_paths` does not exist.
 		- cv2.error: If an image file in a folder cannot be read by OpenCV.
-	
+
 	Each image in `folder_paths` is loaded using OpenCV and preprocessed using the following steps:
 	- Resized to `img_size`.
 	- Converted to RGB format.
 	- Normalized pixel values to [0, 1].
 	- Converted to a NumPy array.
-	
+
 	The preprocessed images and their corresponding labels (extracted from the folder name) are stored in two separate lists,
 	which are then converted to NumPy arrays and returned.
 	'''
@@ -45,12 +44,21 @@ def preprocess_images(folder_paths, img_size):
 	original_labels = []
 
 	# Loop over each folder path and each image in the folder
-	pbar = tqdm(total=len(folder_paths) * len(os.listdir(folder_paths[0])), desc='Loading images')
+	pbar = tqdm(total=sum(len(os.listdir(folder_path)) for folder_path in folder_paths), desc='Loading images')
 
 	for folder_path in folder_paths:
 		for filename in os.listdir(folder_path):
+
+			# Do not allow files other than certain extensions
+			if not filename.lower().endswith(('.jpg', '.jpeg', '.png', '.tiff')):
+				continue
+
 			# Load image
 			img = cv2.imread(os.path.join(folder_path, filename))
+
+			# Check that the image is loaded correctly
+			if img is None:
+				raise Exception('Failed to load image ', filename)
 
 			# Resize image
 			img = cv2.resize(img, img_size, interpolation=cv2.INTER_LINEAR)
@@ -66,7 +74,7 @@ def preprocess_images(folder_paths, img_size):
 
 			# Append preprocessed image and label to lists
 			original_images.append(img)
-			original_labels.append(folder_path.split('/')[-1])
+			original_labels.append(os.path.basename(folder_path))
 
 			pbar.update(1)
 

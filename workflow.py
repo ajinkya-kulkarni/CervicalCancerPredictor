@@ -19,6 +19,7 @@ sys.dont_write_bytecode = True
 sys.tracebacklimit = 0 
 
 from tensorflow.keras.utils import to_categorical
+from keras.callbacks import EarlyStopping
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -85,16 +86,13 @@ model = CNN_model(X_train_final, learning_rate, regularization = RegularizationK
 
 ######################################################################
 
-train_acc_list = []
-val_acc_list = []
-train_loss_list = []
-val_loss_list = []
+early_stop = EarlyStopping(monitor='val_accuracy', patience=10, min_delta=0.1, verbose=1, mode='auto')
 
 with tqdm(total=epochs) as pbar:
 	for epoch in range(epochs):
 		
 		# Train the model for one epoch and track the history of training
-		history = model.fit(X_train_final, y_train_final, batch_size=batch_size, epochs=1, verbose=0, validation_data=(X_test, y_test))
+		history = model.fit(X_train_final, y_train_final, batch_size=batch_size, epochs=1, verbose=0, validation_data=(X_test, y_test), callbacks=[early_stop])
 
 		# Retrieve the training and validation accuracy and loss for the current epoch
 		train_acc = history.history['accuracy'][0]
@@ -107,6 +105,11 @@ with tqdm(total=epochs) as pbar:
 		val_acc_list.append(val_acc)
 		train_loss_list.append(train_loss)
 		val_loss_list.append(val_loss)
+
+		# Check if early stopping criteria have been met
+		if early_stop.stopped_epoch > 0:
+			print(f'Stopping training at epoch {epoch+1} as validation accuracy has not improved by at least 0.1 for 10 consecutive epochs.')
+			break
 
 		# Update the progress bar with the current training and validation accuracy and epoch number
 		pbar.set_description(f'Epoch: {epoch+1}/{epochs}, Train Acc: {train_acc * 100:.0f}%, Val Acc: {val_acc * 100:.0f}%')
