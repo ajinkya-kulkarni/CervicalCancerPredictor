@@ -83,10 +83,13 @@ show_random_augmentation(X_train, X_train_final, n_augmentations)
 
 print('Training the CNN model now:')
 
-model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
+# model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
-# Define stopping criterion
-early_stop = EarlyStopping(monitor='val_accuracy', patience=PatienceEpochs, min_delta=0.01, verbose=1, mode='auto')
+model = CNN_model(X_train_final, learning_rate)
+
+# model.summary()
+
+######################################################################
 
 train_acc_list = []
 val_acc_list = []
@@ -97,7 +100,7 @@ with tqdm(total=epochs) as pbar:
 	for epoch in range(epochs):
 		
 		# Train the model for one epoch and track the history of training
-		history = model.fit(X_train_final, y_train_final, batch_size=batch_size, epochs=1, verbose=0, validation_data=(X_test, y_test), callbacks=[early_stop])
+		history = model.fit(X_train_final, y_train_final, batch_size=batch_size, epochs=1, verbose=0, validation_data=(X_test, y_test))
 
 		# Retrieve the training and validation accuracy and loss for the current epoch
 		train_acc = history.history['accuracy'][0]
@@ -110,11 +113,6 @@ with tqdm(total=epochs) as pbar:
 		val_acc_list.append(val_acc)
 		train_loss_list.append(train_loss)
 		val_loss_list.append(val_loss)
-
-		# Check if early stopping criteria have been met
-		if early_stop.stopped_epoch > 0:
-			print(f'Stopping training at epoch {epoch+1} as validation accuracy has not improved by at least 0.1 for 10 consecutive epochs.')
-			break
 
 		# Update the progress bar with the current training and validation accuracy and epoch number
 		pbar.set_description(f'Epoch: {epoch+1}/{epochs}, Train Acc: {train_acc * 100:.0f}%, Val Acc: {val_acc * 100:.0f}%')
@@ -174,6 +172,6 @@ calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_labels)
 
 # Save the model
 
-model.save('Trained_CNN_Model.h5')
+model.save('Trained_Model.h5')
 
 ######################################################################
