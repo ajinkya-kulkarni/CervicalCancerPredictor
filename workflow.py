@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 import os
-os.system('rm *.pdf')
+os.system('rm *.pdf *.h5')
 os.system('clear')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -86,7 +86,7 @@ print('Training the CNN model now:')
 model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
 # Define stopping criterion
-early_stop = EarlyStopping(monitor='val_accuracy', patience=10, min_delta=0.1, verbose=1, mode='auto')
+early_stop = EarlyStopping(monitor='val_accuracy', patience=10, min_delta=0.01, verbose=1, mode='auto')
 
 train_acc_list = []
 val_acc_list = []

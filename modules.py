@@ -11,8 +11,6 @@ import tensorflow as tf
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-FIGSIZE = (10, 10)
-
 ######################################################################
 
 # Define a function to preprocess the images
@@ -165,7 +163,7 @@ def show_random_augmentation(X_train, X_train_final, n_augmentations):
 	rows = int(np.ceil((n + 1) / cols))
 
 	# Create a figure and axes for the subplots
-	fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=FIGSIZE)
+	fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(10, 10))
 
 	# Flatten the axes array for easier indexing
 	axes = axes.flatten()
@@ -203,8 +201,8 @@ def plot_confusion_matrix(num_classes, ConfusionMatrix):
 
 	# Plot confusion matrix
 	# Creates a new figure and axis, and draws a heatmap of the confusion matrix
-	fig, ax = plt.subplots(figsize=FIGSIZE)
-	im = ax.imshow(ConfusionMatrix, cmap = 'Blues', interpolation = 'None', vmin = 0, vmax = 1)
+	fig, ax = plt.subplots()
+	im = ax.imshow(ConfusionMatrix, cmap = 'Blues', interpolation = 'None')
 
 	# Set axis tick labels and titles
 	ax.set_xticks(np.arange(num_classes))

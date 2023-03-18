@@ -14,7 +14,7 @@ n_augmentations = 24
 
 split_percentage = 0.1
 
-RegularizationKey = False
+RegularizationKey = True
 
 ######################################################################
 
