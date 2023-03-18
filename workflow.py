@@ -47,6 +47,8 @@ print()
 
 X_train, X_test, y_train, y_test = train_test_split(original_images, original_labels, test_size=split_percentage, random_state=42)
 
+print()
+
 ######################################################################
 
 # Convert string labels to numerical labels
@@ -80,13 +82,17 @@ show_random_augmentation(X_train, X_train_final, n_augmentations)
 
 ######################################################################
 
-# Define the model
+# Define and run the model
 
 model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
-######################################################################
-
+# Define stopping criterion
 early_stop = EarlyStopping(monitor='val_accuracy', patience=10, min_delta=0.1, verbose=1, mode='auto')
+
+train_acc_list = []
+val_acc_list = []
+train_loss_list = []
+val_loss_list = []
 
 with tqdm(total=epochs) as pbar:
 	for epoch in range(epochs):
@@ -135,7 +141,7 @@ y_true_labels = np.argmax(y_test, axis=1)
 ######################################################################
 
 # Create a figure with two subplots
-fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 
 # Plot training and validation accuracy over epochs
 axs[0].plot(train_acc_list, linewidth=2)

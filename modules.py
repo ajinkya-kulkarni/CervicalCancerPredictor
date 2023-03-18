@@ -54,13 +54,14 @@ def preprocess_images(folder_paths, img_size):
 			# Do not allow files other than certain extensions
 			if not filename.lower().endswith(('.jpg', '.jpeg', '.png', '.tiff')):
 				continue
-				
+
 			# Load image
 			img = cv2.imread(os.path.join(folder_path, filename))
 
 			# Check that the image is loaded correctly
 			if img is None:
-				raise Exception('Failed to load image ', filename)
+				raise Warning('Failed to load image ', filename)
+				print()
 
 			# Resize image
 			img = cv2.resize(img, img_size, interpolation=cv2.INTER_LINEAR)
