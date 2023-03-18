@@ -22,7 +22,6 @@ from tensorflow.keras.utils import to_categorical
 from keras.callbacks import EarlyStopping
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 
 ######################################################################
@@ -46,8 +45,6 @@ print()
 # Split data into training and testing sets
 
 X_train, X_test, y_train, y_test = train_test_split(original_images, original_labels, test_size=split_percentage, random_state=42)
-
-print()
 
 ######################################################################
 
@@ -83,6 +80,8 @@ show_random_augmentation(X_train, X_train_final, n_augmentations)
 ######################################################################
 
 # Define and run the model
+
+print('Training the CNN model now:')
 
 model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
@@ -128,18 +127,6 @@ print()
 
 ######################################################################
 
-# Generate predictions for the test data
-
-y_pred = model.predict(X_test)
-
-# Convert predictions to labels
-
-y_pred_labels = np.argmax(y_pred, axis=1)
-
-y_true_labels = np.argmax(y_test, axis=1)
-
-######################################################################
-
 # Create a figure with two subplots
 fig, axs = plt.subplots(1, 2, figsize=(8, 4))
 
@@ -165,6 +152,13 @@ plt.close()
 
 ######################################################################
 
+# Generate predictions for the test data
+y_pred = model.predict(X_test, verbose=0)
+
+# Convert predictions to labels
+y_pred_labels = np.argmax(y_pred, axis=1)
+y_true_labels = np.argmax(y_test, axis=1)
+
 # Generate confusion matrix
 ConfusionMatrix = confusion_matrix(y_true_labels, y_pred_labels, normalize='true')
 
@@ -173,31 +167,8 @@ plot_confusion_matrix(num_classes, ConfusionMatrix)
 
 ######################################################################
 
-# Evaluate the model on the test data
-score = model.evaluate(X_test, y_test, verbose=0)
-
-# Make predictions on the test data
-y_pred = model.predict(X_test)
-
-# Convert predictions from probabilities to labels
-y_pred_labels = np.argmax(y_pred, axis=1)
-y_true_labels = np.argmax(y_test, axis=1)
-
-# Calculate performance metrics
-accuracy = accuracy_score(y_true_labels, y_pred_labels)
-precision = precision_score(y_true_labels, y_pred_labels, average='weighted')
-recall = recall_score(y_true_labels, y_pred_labels, average='weighted')
-f1 = f1_score(y_true_labels, y_pred_labels, average='weighted')
-
-# Print performance metrics
-print()
-print(f'Test accuracy: {accuracy:.3f}')
-print(f'Test precision: {precision:.3f}')
-print(f'Test recall: {recall:.3f}')
-print(f'Test F1-score: {f1:.3f}')
-print()
-print(f'Test confusion matrix:\n{ConfusionMatrix}')
-print()
+# Print out model performance
+calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_labels)
 
 ######################################################################
 

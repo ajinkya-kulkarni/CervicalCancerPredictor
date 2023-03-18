@@ -9,6 +9,8 @@ from tqdm import tqdm
 
 import tensorflow as tf
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
 FIGSIZE = (10, 10)
 
 ######################################################################
@@ -226,6 +228,26 @@ def plot_confusion_matrix(num_classes, ConfusionMatrix):
 	# Saves the plot to a PDF file and closes the figure
 	plt.savefig('ConfusionMatrix.pdf', bbox_inches = 'tight')
 	plt.close()
+
+######################################################################
+
+def calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_labels):
+
+	# Calculate performance metrics
+	accuracy = accuracy_score(y_true_labels, y_pred_labels)
+	precision = precision_score(y_true_labels, y_pred_labels, average='weighted')
+	recall = recall_score(y_true_labels, y_pred_labels, average='weighted')
+	f1 = f1_score(y_true_labels, y_pred_labels, average='weighted')
+	cm = confusion_matrix(y_true_labels, y_pred_labels)
+
+	# Print performance metrics
+	print(f'Test accuracy: {accuracy:.3f}')
+	print(f'Test precision: {precision:.3f}')
+	print(f'Test recall: {recall:.3f}')
+	print(f'Test F1-score: {f1:.3f}')
+	print()
+	print(f'Test confusion matrix:\n{cm}')
+	print()
 
 ######################################################################
 
