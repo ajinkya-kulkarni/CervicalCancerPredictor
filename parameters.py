@@ -1,13 +1,13 @@
-folder_paths = ['./group_1', './group_2', './group_3']
+# Parameters
 
 batch_size = 8
 
-epochs = 10
+epochs = 5
 
-learning_rate = 1e-5
+learning_rate = 1e-4
 
 img_size = (64, 64)
 
-n_augmentations = 8
+n_augmentations = 24
 
 split_percentage = 0.1
