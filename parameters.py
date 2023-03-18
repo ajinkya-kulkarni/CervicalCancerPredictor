@@ -2,19 +2,21 @@
 
 ######################################################################
 
-batch_size = 32
+batch_size = 8
 
-epochs = 100
+epochs = 50
 
 learning_rate = 1e-5
 
-img_size = (128, 128)
+img_size = (64, 64)
 
 n_augmentations = 24
 
-split_percentage = 0.1
+split_percentage = 0.2
 
 RegularizationKey = True
+
+PatienceEpochs = 5
 
 ######################################################################
 

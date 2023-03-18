@@ -86,7 +86,7 @@ print('Training the CNN model now:')
 model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
 # Define stopping criterion
-early_stop = EarlyStopping(monitor='val_accuracy', patience=10, min_delta=0.01, verbose=1, mode='auto')
+early_stop = EarlyStopping(monitor='val_accuracy', patience=PatienceEpochs, min_delta=0.01, verbose=1, mode='auto')
 
 train_acc_list = []
 val_acc_list = []
