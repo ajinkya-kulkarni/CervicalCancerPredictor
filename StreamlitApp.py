@@ -33,7 +33,9 @@ def predict_image(model_name, image):
 
 	# Make predictions using the model
 
+	print()
 	prediction = model.predict(img)
+	print()
 
 	# Return the predicted class probabilities
 
