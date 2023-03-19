@@ -32,15 +32,18 @@ def predict_image(model_name, image):
 
 ######################################################################
 
-# Create a Streamlit app
+# Create the Streamlit app
 st.set_page_config(page_title="Image Classifier", layout="centered")
 st.title("Image Classifier")
 st.write("This app predicts the class of an uploaded image.")
+st.markdown("")
 
 ######################################################################
 
 # Create a file uploader and display the uploaded image
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "tif", "tiff"])
+
+st.markdown("")
 
 if uploaded_file is not None:
 	# Read the uploaded image using OpenCV
@@ -58,6 +61,8 @@ if uploaded_file is not None:
 	class_name = class_names[class_label]
 
 	###################################################################
+	
+	st.markdown("")
 
 	# Display the uploaded image and predicted class label
 	st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
