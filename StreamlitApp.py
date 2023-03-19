@@ -63,6 +63,8 @@ if uploaded_file is not None:
 	st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
 	st.write(f"Result: Uploaded image belongs to the {class_name} class.")
 
+	st.stop()
+
 else:
 	
 	st.warning("Please upload an image.")
