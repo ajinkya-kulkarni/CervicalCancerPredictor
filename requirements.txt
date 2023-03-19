@@ -4,4 +4,3 @@ matplotlib
 tqdm
 tensorflow
 scikit-learn
-Pillow
