@@ -1,6 +1,5 @@
 import numpy as np
 
-# from tqdm.notebook import tqdm
 from tqdm import tqdm
 
 import os
@@ -10,7 +9,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 10})
-# %config InlineBackend.figure_format='retina'
 
 import sys
 # Don't generate the __pycache__ folder locally
