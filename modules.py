@@ -249,95 +249,95 @@ def calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_label
 
 ######################################################################
 
-# def CNN_model(X_train, learning_rate, regularization):
-# 	'''
-# 	Creates a CNN model with optional regularization.
+def regular_CNN_model(X_train, learning_rate, regularization):
+	'''
+	Creates a CNN model with optional regularization.
 	
-# 	Parameters:
-# 		- X_train (numpy array): Array of training images used to determine the input shape of the model.
-# 		- learning_rate (float): Learning rate used by the Adam optimizer.
-# 		- regularization (bool): Flag indicating whether to add L1/L2 regularization to the Dense layers.
+	Parameters:
+		- X_train (numpy array): Array of training images used to determine the input shape of the model.
+		- learning_rate (float): Learning rate used by the Adam optimizer.
+		- regularization (bool): Flag indicating whether to add L1/L2 regularization to the Dense layers.
 	
-# 	Returns:
-# 		- model (tf.keras.Model): A new instance of the CNN model.
+	Returns:
+		- model (tf.keras.Model): A new instance of the CNN model.
 	
-# 	This function creates a CNN model with the following layers:
-# 	- Convolutional layer with 8 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
-# 	- Max Pooling layer with 2x2 pool size.
-# 	- Convolutional layer with 16 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
-# 	- Max Pooling layer with 2x2 pool size.
-# 	- Convolutional layer with 32 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
-# 	- Max Pooling layer with 2x2 pool size.
-# 	- Flatten layer to convert 3D feature maps into a 1D feature vector.
-# 	- Dense layer with 32 neurons and ReLU activation, with or without L1/L2 regularization.
-# 	- Dropout layer with a rate of 0.3 to prevent overfitting.
-# 	- Dense layer with 16 neurons and ReLU activation, with or without L1/L2 regularization.
-# 	- Dropout layer with a rate of 0.3 to prevent overfitting.
-# 	- Output layer with 3 neurons and a softmax activation for 3-class classification.
+	This function creates a CNN model with the following layers:
+	- Convolutional layer with 8 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
+	- Max Pooling layer with 2x2 pool size.
+	- Convolutional layer with 16 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
+	- Max Pooling layer with 2x2 pool size.
+	- Convolutional layer with 32 filters, 3x3 kernel, ReLU activation, and Batch Normalization.
+	- Max Pooling layer with 2x2 pool size.
+	- Flatten layer to convert 3D feature maps into a 1D feature vector.
+	- Dense layer with 32 neurons and ReLU activation, with or without L1/L2 regularization.
+	- Dropout layer with a rate of 0.3 to prevent overfitting.
+	- Dense layer with 16 neurons and ReLU activation, with or without L1/L2 regularization.
+	- Dropout layer with a rate of 0.3 to prevent overfitting.
+	- Output layer with 3 neurons and a softmax activation for 3-class classification.
 	
-# 	If `regularization` is True, L1/L2 regularization is added to the Dense layers to prevent overfitting. The Adam optimizer with
-# 	the specified `learning_rate` is used to optimize the model, with categorical crossentropy loss and accuracy metric.
-# 	The model is returned as a TensorFlow Keras Model object.
-# 	'''
-# 	# Initialize a Sequential model
-# 	model = tf.keras.models.Sequential()
+	If `regularization` is True, L1/L2 regularization is added to the Dense layers to prevent overfitting. The Adam optimizer with
+	the specified `learning_rate` is used to optimize the model, with categorical crossentropy loss and accuracy metric.
+	The model is returned as a TensorFlow Keras Model object.
+	'''
+	# Initialize a Sequential model
+	model = tf.keras.models.Sequential()
 
-# 	# Add a Convolutional layer with 8 filters, a 3x3 kernel, and ReLU activation function
-# 	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
-# 	# Add Batch Normalization to normalize the output of the previous layer
-# 	model.add(tf.keras.layers.BatchNormalization())
-# 	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
-# 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+	# Add a Convolutional layer with 8 filters, a 3x3 kernel, and ReLU activation function
+	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
+	# Add Batch Normalization to normalize the output of the previous layer
+	model.add(tf.keras.layers.BatchNormalization())
+	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
+	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-# 	# Add another Convolutional layer with 16 filters, a 3x3 kernel, and ReLU activation function
-# 	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
-# 	# Add Batch Normalization to normalize the output of the previous layer
-# 	model.add(tf.keras.layers.BatchNormalization())
-# 	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
-# 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+	# Add another Convolutional layer with 16 filters, a 3x3 kernel, and ReLU activation function
+	model.add(tf.keras.layers.Conv2D(16, (3, 3), padding='same', activation='relu'))
+	# Add Batch Normalization to normalize the output of the previous layer
+	model.add(tf.keras.layers.BatchNormalization())
+	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
+	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-# 	# Add another Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation function
-# 	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu'))
-# 	# Add Batch Normalization to normalize the output of the previous layer
-# 	model.add(tf.keras.layers.BatchNormalization())
-# 	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
-# 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+	# Add another Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation function
+	model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation='relu'))
+	# Add Batch Normalization to normalize the output of the previous layer
+	model.add(tf.keras.layers.BatchNormalization())
+	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
+	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
 
-# 	# Add a Flatten layer to convert the 3D feature maps into a 1D feature vector
-# 	model.add(tf.keras.layers.Flatten())
+	# Add a Flatten layer to convert the 3D feature maps into a 1D feature vector
+	model.add(tf.keras.layers.Flatten())
 
-# 	# Add a Fully Connected layer with 32 neurons and ReLU activation function, with or without regularization
-# 	if regularization:
-# 		model.add(tf.keras.layers.Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2()))
-# 	else:
-# 		model.add(tf.keras.layers.Dense(32, activation='relu'))
+	# Add a Fully Connected layer with 32 neurons and ReLU activation function, with or without regularization
+	if regularization:
+		model.add(tf.keras.layers.Dense(32, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2()))
+	else:
+		model.add(tf.keras.layers.Dense(32, activation='relu'))
 
-# 	# Add Dropout with a rate of 0.3 to prevent overfitting
-# 	model.add(tf.keras.layers.Dropout(rate=0.3))
+	# Add Dropout with a rate of 0.3 to prevent overfitting
+	model.add(tf.keras.layers.Dropout(rate=0.3))
 
-# 	# Add another Fully Connected layer with 16 neurons and ReLU activation function, with or without regularization
-# 	if regularization:
-# 		model.add(tf.keras.layers.Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2()))
-# 	else:
-# 		model.add(tf.keras.layers.Dense(16, activation='relu'))
+	# Add another Fully Connected layer with 16 neurons and ReLU activation function, with or without regularization
+	if regularization:
+		model.add(tf.keras.layers.Dense(16, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2()))
+	else:
+		model.add(tf.keras.layers.Dense(16, activation='relu'))
 
-# 	# Add Dropout with a rate of 0.3 to prevent overfitting
-# 	model.add(tf.keras.layers.Dropout(rate=0.3))
+	# Add Dropout with a rate of 0.3 to prevent overfitting
+	model.add(tf.keras.layers.Dropout(rate=0.3))
 
-# 	# Add the output layer with 3 neurons (for 3 classes) and a softmax activation function
-# 	model.add(tf.keras.layers.Dense(3, activation='softmax'))
+	# Add the output layer with 3 neurons (for 3 classes) and a softmax activation function
+	model.add(tf.keras.layers.Dense(3, activation='softmax'))
 
-# 	# Create the Adam optimizer with the specified learning rate
-# 	optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+	# Create the Adam optimizer with the specified learning rate
+	optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
-# 	# Compile the model with the optimizer, categorical crossentropy loss, and accuracy metric
-# 	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+	# Compile the model with the optimizer, categorical crossentropy loss, and accuracy metric
+	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
-# 	return model
+	return model
 
 ######################################################################
 
-def CNN_model(X_train, learning_rate):
+def simple_CNN_model(X_train, learning_rate):
 	# Initialize a Sequential model
 	model = tf.keras.models.Sequential()
 

@@ -27,7 +27,7 @@ def predict_image(model_name, image):
     return prediction[0]
 
 # Create a Streamlit app
-st.set_page_config(page_title="Image Classifier", page_icon="🖼️", layout="wide")
+st.set_page_config(page_title="Image Classifier", page_icon="🖼️", layout="centered")
 st.title("Image Classifier")
 st.write("This app predicts the class of an uploaded image.")
 
@@ -36,6 +36,8 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 if uploaded_file is not None:
     # Read the uploaded image using OpenCV
     image = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), 1)
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     # Load and preprocess the image using the model
     image_probs = predict_image('Trained_CNN_Model.h5', image)
@@ -46,6 +48,6 @@ if uploaded_file is not None:
 
     # Display the uploaded image and predicted class label
     st.image(image, caption="Uploaded image", use_column_width=True)
-    st.write(f"Uploaded image belongs to the {class_name} class.")
+    st.write(f"Result: Uploaded image belongs to the {class_name} class.")
 else:
     st.warning("Please upload an image.")

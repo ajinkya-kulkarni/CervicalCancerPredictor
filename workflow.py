@@ -18,8 +18,7 @@ sys.dont_write_bytecode = True
 # Print exception without the buit-in python warning
 sys.tracebacklimit = 0 
 
-from tensorflow.keras.utils import to_categorical
-from keras.callbacks import EarlyStopping
+import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -60,8 +59,8 @@ y_train = label_encoder.fit_transform(y_train)
 
 num_classes = len(np.unique(original_labels))
 
-y_train = to_categorical(y_train, num_classes)
-y_test = to_categorical(label_encoder.transform(y_test), num_classes)
+y_train = tf.keras.utils.to_categorical(y_train, num_classes)
+y_test = tf.keras.utils.to_categorical(label_encoder.transform(y_test), num_classes)
 
 ######################################################################
 
@@ -79,17 +78,20 @@ show_random_augmentation(X_train, X_train_final, n_augmentations)
 
 ######################################################################
 
-# Define and run the model
+# Define the model
 
-print('Training the CNN model now:')
+# model = regular_CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
 
-# model = CNN_model(X_train_final, learning_rate, regularization = RegularizationKey)
+model = simple_CNN_model(X_train_final, learning_rate)
 
-model = CNN_model(X_train_final, learning_rate)
-
-# model.summary()
+model.summary()
+print()
 
 ######################################################################
+
+# Run the model
+
+print('Training the CNN model now:')
 
 train_acc_list = []
 val_acc_list = []
@@ -172,6 +174,6 @@ calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_labels)
 
 # Save the model
 
-model.save('Trained_Model.h5')
+model.save('Trained_CNN_Model.h5')
 
 ######################################################################
