@@ -115,7 +115,7 @@ with tqdm(total=epochs) as pbar:
 		val_loss_list.append(val_loss)
 
 		# Update the progress bar with the current training and validation accuracy and epoch number
-		pbar.set_description(f'Epoch: {epoch+1}/{epochs}, Train Acc: {train_acc * 100:.0f}%, Val Acc: {val_acc * 100:.0f}%')
+		pbar.set_description(f'Train Acc: {train_acc * 100:.0f}%, Val Acc: {val_acc * 100:.0f}%')
 
 		# Increment the progress bar
 		pbar.update(1)
