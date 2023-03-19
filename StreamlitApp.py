@@ -36,9 +36,6 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 if uploaded_file is not None:
     # Read the uploaded image using OpenCV
     image = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), 1)
-
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
     # Load and preprocess the image using the model
     image_probs = predict_image('Trained_CNN_Model.h5', image)
 
@@ -47,7 +44,7 @@ if uploaded_file is not None:
     class_name = class_names[class_label]
 
     # Display the uploaded image and predicted class label
-    st.image(image, caption="Uploaded image", use_column_width=True)
+    st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
     st.write(f"Result: Uploaded image belongs to the {class_name} class.")
 else:
     st.warning("Please upload an image.")

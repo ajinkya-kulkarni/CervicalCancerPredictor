@@ -2,11 +2,11 @@
 
 batch_size = 16
 
-epochs = 200
+epochs = 500
 
-learning_rate = 1e-4
+learning_rate = 1e-5
 
-img_size = (32, 32)
+img_size = (64, 64)
 
 n_augmentations = 20
 

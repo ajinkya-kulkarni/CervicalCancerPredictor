@@ -119,7 +119,7 @@ def augment_images(X_train, y_train, n_augmentations):
 	n = n_augmentations
 
 	# Create an ImageDataGenerator instance with the desired augmentations
-	datagen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=20, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, horizontal_flip=True, fill_mode='nearest')
+	datagen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=30, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.1, horizontal_flip=True, fill_mode='nearest')
 
 	# Initialize empty lists for the augmented images and labels
 	X_train_augmented = []
@@ -148,6 +148,17 @@ def augment_images(X_train, y_train, n_augmentations):
 ######################################################################
 
 def show_random_augmentation(X_train, X_train_final, n_augmentations):
+	"""
+	Displays a random original image and n_augmentations of its augmented versions in a grid of subplots.
+
+	Parameters:
+	X_train (numpy.ndarray): Original input data with shape (num_samples, height, width, num_channels).
+	X_train_final (numpy.ndarray): Augmented input data with shape (num_augmentations * num_samples, height, width, num_channels).
+	n_augmentations (int): Number of augmented images to display.
+
+	Returns:
+	None
+	"""
 
 	# Define the number of augmentations per image
 	n = n_augmentations
@@ -189,20 +200,31 @@ def show_random_augmentation(X_train, X_train_final, n_augmentations):
 		fig.delaxes(axes[j])
 
 	# Save and close the plot
-	plt.savefig('RandomAugmentations.pdf', bbox_inches = 'tight')
+	plt.savefig('RandomAugmentations.pdf', bbox_inches='tight')
 	plt.close()
 
 ######################################################################
 
 def plot_confusion_matrix(num_classes, ConfusionMatrix):
+	"""
+	Plots a confusion matrix heatmap for a given confusion matrix.
+
+	Parameters:
+	num_classes (int): Number of classes.
+	ConfusionMatrix (numpy.ndarray): Confusion matrix with shape (num_classes, num_classes).
+
+	Returns:
+	None
+	"""
+
 	# Define class dictionary
 	# Maps numeric labels to human-readable class names
 	class_dict = {0: 'group_1', 1: 'group_2', 2: 'group_3'}
 
-	# Plot confusion matrix
+	# Plot confusion matrix heatmap
 	# Creates a new figure and axis, and draws a heatmap of the confusion matrix
 	fig, ax = plt.subplots()
-	im = ax.imshow(ConfusionMatrix, cmap = 'Blues', interpolation = 'None')
+	im = ax.imshow(ConfusionMatrix, cmap='Blues', interpolation='None')
 
 	# Set axis tick labels and titles
 	ax.set_xticks(np.arange(num_classes))
@@ -217,21 +239,36 @@ def plot_confusion_matrix(num_classes, ConfusionMatrix):
 	# The text shows the numerical value of the confusion matrix cell
 	for i in range(num_classes):
 		for j in range(num_classes):
-			text = ax.text(j, i, format(ConfusionMatrix[i, j], '.2f'), ha="center", va="center", color="white" if ConfusionMatrix[i, j] > 0.5 else "black")
+			text = ax.text(j, i, format(ConfusionMatrix[i, j], '.2f'),
+						ha="center", va="center", color="white" if ConfusionMatrix[i, j] > 0.5 else "black")
 
 	# Add a colorbar to the plot
 	plt.colorbar(im)
 
 	# Save and close the plot
 	# Saves the plot to a PDF file and closes the figure
-	plt.savefig('ConfusionMatrix.pdf', bbox_inches = 'tight')
+	plt.savefig('ConfusionMatrix.pdf', bbox_inches='tight')
 	plt.close()
 
 ######################################################################
 
 def calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_labels):
+	"""
+	Calculates and prints performance metrics for a given model on test data.
 
-	# Calculate performance metrics
+	Parameters:
+	model (tf.keras.Model): Trained Keras model.
+	X_test (numpy.ndarray): Test input data with shape (num_samples, height, width, num_channels).
+	y_test (numpy.ndarray): Test target data in one-hot encoded format with shape (num_samples, num_classes).
+	y_pred (numpy.ndarray): Predicted target data in one-hot encoded format with shape (num_samples, num_classes).
+	y_pred_labels (numpy.ndarray): Predicted target data in label format with shape (num_samples,).
+	y_true_labels (numpy.ndarray): Test target data in label format with shape (num_samples,).
+
+	Returns:
+	None
+	"""
+
+	# Calculate performance metrics using scikit-learn functions
 	accuracy = accuracy_score(y_true_labels, y_pred_labels)
 	precision = precision_score(y_true_labels, y_pred_labels, average='weighted')
 	recall = recall_score(y_true_labels, y_pred_labels, average='weighted')
@@ -244,6 +281,8 @@ def calculate_metrics(model, X_test, y_test, y_pred, y_pred_labels, y_true_label
 	print(f'Test recall: {recall:.3f}')
 	print(f'Test F1-score: {f1:.3f}')
 	print()
+
+	# Print confusion matrix
 	print(f'Test confusion matrix:\n{cm}')
 	print()
 
@@ -338,6 +377,28 @@ def regular_CNN_model(X_train, learning_rate, regularization):
 ######################################################################
 
 def simple_CNN_model(X_train, learning_rate):
+	"""
+	Creates a simple CNN model using the Keras Sequential API with the following layers:
+	- Conv2D layer with 4 filters, 3x3 kernel, and ReLU activation function
+	- Batch Normalization layer
+	- Dropout layer with rate of 0.1
+	- MaxPooling2D layer with pool size of 2x2 and strides of 2x2
+	- Conv2D layer with 8 filters, 3x3 kernel, and ReLU activation function
+	- Batch Normalization layer
+	- Dropout layer with rate of 0.1
+	- MaxPooling2D layer with pool size of 2x2 and strides of 2x2
+	- Flatten layer
+	- Dense layer with 12 neurons and tanh activation function
+	- Dropout layer with rate of 0.2
+	- Dense output layer with 3 neurons and softmax activation function
+
+	Parameters:
+	X_train (numpy.ndarray): Training input data with shape (num_samples, height, width, num_channels).
+	learning_rate (float): Learning rate for the optimizer.
+
+	Returns:
+	A compiled Keras model.
+	"""
 	# Initialize a Sequential model
 	model = tf.keras.models.Sequential()
 
@@ -345,8 +406,8 @@ def simple_CNN_model(X_train, learning_rate):
 	model.add(tf.keras.layers.Conv2D(4, (3, 3), padding='same', activation='relu', input_shape=X_train.shape[1:]))
 	# Add Batch Normalization to normalize the output of the previous layer
 	model.add(tf.keras.layers.BatchNormalization())
-	# Add Dropout with a rate of 0.2 to prevent overfitting
-	model.add(tf.keras.layers.Dropout(rate=0.2))
+	# Add Dropout with a rate of 0.1 to prevent overfitting
+	model.add(tf.keras.layers.Dropout(rate=0.1))
 	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
@@ -354,8 +415,8 @@ def simple_CNN_model(X_train, learning_rate):
 	model.add(tf.keras.layers.Conv2D(8, (3, 3), padding='same', activation='relu'))
 	# Add Batch Normalization to normalize the output of the previous layer
 	model.add(tf.keras.layers.BatchNormalization())
-	# Add Dropout with a rate of 0.2 to prevent overfitting
-	model.add(tf.keras.layers.Dropout(rate=0.2))
+	# Add Dropout with a rate of 0.1 to prevent overfitting
+	model.add(tf.keras.layers.Dropout(rate=0.1))
 	# Add Max Pooling with a pool size of 2x2 to reduce spatial dimensions
 	model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
