@@ -3,7 +3,6 @@ import numpy as np
 import streamlit as st
 import tensorflow as tf
 from io import BytesIO
-from PIL import Image
 
 ######################################################################
 
@@ -21,6 +20,7 @@ def predict_image(model_name, image):
     input_shape = model.layers[0].input_shape[1:3]
 
     # Preprocess the image using cv2
+    img = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, input_shape)
     img = np.expand_dims(img, axis=0) / 255.0
 
@@ -43,12 +43,8 @@ st.write("This app predicts the class of an uploaded image.")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "tif", "tiff"])
 
 if uploaded_file is not None:
-
-    # Access the file uploaded by the user 
-    image = Image.open(uploaded_file)
-    
-    # Make a numpy array composed of the 3-channels of RGB image 
-    image = np.array(image)
+    # Read the uploaded image using OpenCV
+    image = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), 1)
 
     ###################################################################
 
@@ -64,11 +60,11 @@ if uploaded_file is not None:
     ###################################################################
 
     # Display the uploaded image and predicted class label
-    st.image(image, caption="Uploaded image", use_column_width=True)
+    st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
     st.write(f"Result: Uploaded image belongs to the {class_name} class.")
 
 else:
-
+    
     st.warning("Please upload an image.")
 
 ######################################################################
