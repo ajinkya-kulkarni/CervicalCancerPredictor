@@ -1,8 +1,8 @@
 # # Parameters
 
-batch_size = 16
+batch_size = 32
 
-epochs = 500
+epochs = 200
 
 learning_rate = 1e-5
 
@@ -10,6 +10,6 @@ img_size = (64, 64)
 
 n_augmentations = 20
 
-split_percentage = 0.2
+split_percentage = 0.3
 
 RegularizationKey = True

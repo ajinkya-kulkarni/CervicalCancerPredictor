@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 import os
-os.system('rm *.pdf *.h5')
+os.system('rm *.pdf')
 os.system('clear')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
