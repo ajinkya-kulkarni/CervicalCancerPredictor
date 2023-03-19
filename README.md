@@ -16,9 +16,9 @@ This project demonstrates the use of Convolutional Neural Networks (CNNs) to cla
 1. Clone the repository to your local machine.
 2. Install the required packages using the following command:
 
-    ```
-    pip install -r requirements.txt
-    ```
+	```
+	pip install -r requirements.txt
+	```
 
 ## Usage
 
