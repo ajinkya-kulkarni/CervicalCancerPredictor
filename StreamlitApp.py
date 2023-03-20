@@ -43,7 +43,7 @@ def predict_image(model_name, image):
 
 # Create the Streamlit app
 
-st.set_page_config(page_title="Image Classifier", layout="centered", page_icon = ":microscope:")
+st.set_page_config(page_title="Image Classifier", layout="wide", page_icon = ":microscope:")
 
 st.title("Image Classifier")
 
@@ -84,9 +84,17 @@ if uploaded_file is not None:
 
 	# Display the uploaded image and predicted class label
 
-	st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
+	left_column, middle_column, right_column = st.columns(3)
 
-	st.write(f"Result: Uploaded image belongs to the {class_name} class.")
+	with left_column:
+		st.empty()
+	with middle_column:
+		st.image(cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB), caption="Uploaded image", use_column_width=True)
+
+		st.write(f"Uploaded image belongs to the {class_name} class.")
+
+	with right_column:
+		st.empty()
 
 	st.stop()
 
