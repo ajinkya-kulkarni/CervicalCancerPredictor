@@ -43,7 +43,7 @@ def predict_image(model_name, image):
 
 # Create the Streamlit app
 
-st.set_page_config(page_title="Image Classifier", layout="centered")
+st.set_page_config(page_title="Image Classifier", layout="centered", page_icon = ":microscope:")
 
 st.title("Image Classifier")
 
