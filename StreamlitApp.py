@@ -84,7 +84,7 @@ if uploaded_file is not None:
 
 	# Display the uploaded image and predicted class label
 
-	left_column, middle_column, right_column = st.columns(3)
+	left_column, middle_column, right_column = st.columns([1, 2, 1])
 
 	with left_column:
 		st.empty()
